@@ -63,130 +63,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             ElSolTheme {
                 val navController = rememberNavController()
-                var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val scope = rememberCoroutineScope()
-                val snackbarHostState = remember { SnackbarHostState() }
 
-                Scaffold(
-                    bottomBar = {
-                        BottomAppBar(drawerState = drawerState)
-                        SnackbarHost(hostState = snackbarHostState)
-                    }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = it.calculateBottomPadding())
-                    ) {
-                        NavHost(navController = navController, startDestination = "Principal") {
-                            composable("Principal") { Principal(navController, snackbarHostState = SnackbarHostState()) }
-                            composable("Filled.Email") { Email(navController, snackbarHostState =  SnackbarHostState()) }
-                            composable("Filled.Info") { Info(navController, snackbarHostState =  SnackbarHostState()) }
-                            composable("Filled.Build") { Principal(navController, snackbarHostState =  SnackbarHostState()) }
+                NavHost(navController = navController, startDestination = "Principal") {
+                    composable("Principal") { Principal(navController) }
+                    composable("Filled.Email") { Email(navController, snackbarHostState =  SnackbarHostState()) }
+                    composable("Filled.Info") { Info(navController, snackbarHostState =  SnackbarHostState()) }
+                    composable("Filled.Build") { Build(navController) }
 
-                        }
-                        val items = listOf(Icons.Default.Build, Icons.Default.Info, Icons.Default.Email)
-                        val selectedItem = remember {
-                            mutableStateOf(items[0])
-                        }
-                        ModalNavigationDrawer(drawerState = drawerState,
-                            drawerContent = {
-                                ModalDrawerSheet {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.corona_solar),
-                                        contentDescription = "Image",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(220.dp),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    items.forEach { item ->
-                                        NavigationDrawerItem(
-                                            icon = { Icon(item, contentDescription = null) },
-                                            label = { Text(text = item.name.substringAfter(".")) },
-                                            selected = item == selectedItem.value,
-                                            onClick = {
-                                                scope.launch { drawerState.close() }
-                                                selectedItem.value = item
-                                                navController.navigate(item.name)
-                                            })
-                                    }
-                                }
-                            }, content = {
-                                SolVerticalGrid()
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(bottom = it.calculateBottomPadding())
-                                ) {
-                                }
-                            })
-                    }
                 }
+
+
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 
-fun BottomAppBar(drawerState: DrawerState) {
-    var expanded by remember { mutableStateOf(false) }
-    var badgeCount by remember { mutableStateOf(0) }
-    val scope = rememberCoroutineScope()
-    androidx.compose.material3.BottomAppBar(containerColor = Color.Red) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 5.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            scope.launch { drawerState.open() }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
-                    }
-                    BadgedBox(badge = {
-                        Badge {
-                            Text(text = badgeCount.toString())
-                        }
 
-                    }, modifier = Modifier
-                        .padding(10.dp)
-                        .clickable { badgeCount++ }) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
-                    }
-                }
-                Row {
-                    FloatingActionButton(onClick = { /*TODO*/ }, containerColor = Color.Black) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-class SolInfo (
-    val name: String,
-    val image: Int,
-)
